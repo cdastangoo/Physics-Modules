@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<title>Physics</title>
+  	<link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div>
+        <h1>Simple Pendulum</h1>
+    	<canvas id="pendulum" width="400" height="400"></canvas>
+    	<script src="pendulum.js"></script>
+    	<p>Length: <span id="length"></span> cm</p>
+    	<input type="range" min="50" max="200" value="120" class="slider" id="length_slider">
+    	<p>Mass: <span id="mass"></span> g</p>
+    	<input type="range" min="1" max="40" value="20" class="slider" id="mass_slider">
+    	<p>Damping: <span id="damping"></span></p>
+    	<input type="range" min="0.0" max="1.0" step="0.1" value="0.3" class="slider" id="damping_slider">
+    	<p>Space bar to reset</p>
+    </div>
+  </body>
+</html>
