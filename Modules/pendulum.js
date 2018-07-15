@@ -3,40 +3,43 @@ window.onload = function() { pendulum(); }
 function pendulum() {
 
 	// positioning variables
-	var xpos, ypos;
-	var mousex, mousey;
-	var clicked;
+	var xpos, ypos, mousex, mousey;
+	var clicked = false, paused = false, vectors = false;
 
 	// slider variables
-	var length_slider = document.getElementById("length_slider");
-	var length = document.getElementById("length");
-	length.innerHTML = length_slider.value;
-	var mass_slider = document.getElementById("mass_slider");
-	var mass = document.getElementById("mass");
-	mass.innerHTML = mass_slider.value;
-	var friction_slider = document.getElementById("friction_slider");
-	var friction = document.getElementById("friction");
-	friction.innerHTML = friction_slider.value;
-	
+    var length_slider, mass_slider, damping_slider;
+    var length, mass, damping;
+
 	// physics variables
 	var velocity, acceleration, angle;
 	var g = 9.81/100;
 
-	var canvas = document.getElementById("pendulum");
-	var ctx = canvas.getContext("2d");
-	var paused = false;
-	var vectors = false;
+	// length slider
+    length_slider = document.getElementById("length_slider");
+    length = document.getElementById("length");
+    length.innerHTML = length_slider.value;
+    length_slider.oninput = function() {
+        length.innerHTML = this.value;
+	}
 
-	// slider inputs
-	length_slider.oninput = function() {
-		length.innerHTML = this.value;
+    // mass slider
+    mass_slider = document.getElementById("mass_slider");
+    mass = document.getElementById("mass");
+    mass.innerHTML = mass_slider.value;
+    mass_slider.oninput = function() {
+        mass.innerHTML = this.value;
 	}
-	mass_slider.oninput = function() {
-		mass.innerHTML = this.value;
+
+    // damping slider
+    damping_slider = document.getElementById("damping_slider");
+    damping = document.getElementById("damping");
+    damping.innerHTML = damping_slider.value;
+    damping_slider.oninput = function() {
+		damping.innerHTML = this.value;
 	}
-	friction_slider.oninput = function() {
-		friction.innerHTML = this.value;
-	}
+
+    var canvas = document.getElementById("pendulum");
+	var ctx = canvas.getContext("2d");
 
 	// reset simluation
 	function reset() {
@@ -45,10 +48,11 @@ function pendulum() {
 		acceleration = 0.0;
 		angle = Math.PI/3;
 		xpos = canvas.width/2 + length.innerHTML*Math.sin(angle);
-		ypos = canvas.height/4 + length.innerHTML*Math.cos(angle);
+		ypos = canvas.height/5 + length.innerHTML*Math.cos(angle);
 	}
 
-	function redraw() {
+    // redraw canvas
+    function redraw() {
 		// draw canvas
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -58,17 +62,17 @@ function pendulum() {
 		if (!clicked) {
 			acceleration = -1*g/length.innerHTML * Math.sin(angle);
 			velocity += acceleration;
-			velocity *= (1 - friction.innerHTML*0.0015);
+			velocity *= (1 - damping.innerHTML*0.01);
 			angle += velocity;
 		}
 		// handle mouse drag
 		else if (!paused) {
 			dx = mousex - canvas.width/2;
-			dy = mousey - canvas.height/4;
+			dy = mousey - canvas.height/5;
 			angle = Math.atan2(-1*dy, dx) + Math.PI/2;
 		}
 		xpos = canvas.width/2 + length.innerHTML*Math.sin(angle);
-		ypos = canvas.height/4 + length.innerHTML*Math.cos(angle);
+		ypos = canvas.height/5 + length.innerHTML*Math.cos(angle);
 
 		// draw string
 		ctx.shadowBlur = 0;
@@ -77,12 +81,12 @@ function pendulum() {
 		ctx.lineWidth = 1;
 		ctx.beginPath();
 		ctx.moveTo(xpos, ypos);
-		ctx.lineTo(canvas.width/2, canvas.height/4);
+		ctx.lineTo(canvas.width/2, canvas.height/5);
 		ctx.stroke();
 		ctx.beginPath();
-		ctx.arc(canvas.width/2, canvas.height/4, 3, 0, 2*Math.PI);
+		ctx.arc(canvas.width/2, canvas.height/5, 3, 0, 2*Math.PI);
 		ctx.fill();
-		
+
 		// draw ball
 		if (clicked)
 			ctx.shadowBlur = 12;
@@ -104,22 +108,24 @@ function pendulum() {
 
 		// write labels
 		ctx.shadowBlur = 0;
-		ctx.font = "10pt Calibri";
+		ctx.font = "11pt Calibri";
 		ctx.fillStyle = "yellow";
 		ctx.textAlign = "center";
-		// angle
-		var theta = angle*180/Math.PI % 360;
-		ctx.fillText("Angle: \u03B8 = " + theta.toFixed(0) + "\xB0", canvas.width/2, canvas.height/4 - 15);
-		// force of tension
+        // angle
+        if (clicked || paused) {
+            var theta = angle*180/Math.PI % 360;
+		    ctx.fillText("Angle: \u03B8 = " + theta.toFixed(0) + "\xB0", canvas.width/2, canvas.height/5 - 15);
+        }
+        // force of tension
 		var tension = mass.innerHTML/1000*9.81*Math.cos(angle);
-		ctx.fillText("Tension: F = " + tension.toFixed(2) + " N", canvas.width/2, canvas.height*4/5)
+		ctx.fillText("Tension: F = " + tension.toFixed(2) + " N", canvas.width/2, canvas.height*4/5+25)
 		// period
 		var period = 2*Math.PI*Math.sqrt(0.01*length.innerHTML/9.81);
-		ctx.fillText("Period: T = " + period.toFixed(2) + " s", canvas.width/2, canvas.height*4/5+20);
+		ctx.fillText("Period: T = " + period.toFixed(2) + " s", canvas.width/2, canvas.height*4/5+45);
 
 		setTimeout(redraw, 1);
 	}
-	
+
 	reset();
 	setTimeout(redraw, 1);
 
@@ -149,33 +155,17 @@ function pendulum() {
 	}
 
 	//key listeners
-	// window.onkeydown = function(e) {
-	// 	var key = e.keyCode;
-	// 	if (!paused) {
-	// 		// up: increase length
-	// 		if (key == 38) {
-	// 			if (length.innerHTML < 225)
-	// 				length.innerHTML += 5;
-	// 		}
-	// 		// down: decrease length
-	// 		else if (key == 40) {
-	// 			if (length.innerHTML > mass.innerHTML+10)
-	// 				length.innerHTML -= 5;
-	// 		}
-	// 		// right: increase friction
-	// 		else if (key == 39) {
-	// 			if (friction.innerHTML < 8)
-	// 				friction.innerHTML++;
-	// 		}
-	// 		// left: decrease friction
-	// 		else if (key == 37) {
-	// 			if (friction.innerHTML > 0)
-	// 				friction.innerHTML--;
-	// 		}
-	// 		// space: reset
-	// 		else if (key == 32) {
-	// 			reset();
-	// 		}
-	// 	}
-	// }
+	window.onkeydown = function(e) {
+		var key = e.keyCode;
+		if (!paused) {
+			// space: reset
+			if (key == 32) {
+				reset();
+			}
+            // p or esc: pause
+            if (key == 27 || key == 80) {
+                paused = !paused;
+            }
+		}
+	}
 }
