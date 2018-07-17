@@ -6,37 +6,10 @@ function pendulum() {
 	var xpos, ypos, mousex, mousey;
 	var clicked = false, paused = false, vectors = false;
 
-	// slider variables
-    var length_slider, mass_slider, damping_slider;
-    var length, mass, damping;
-
 	// physics variables
+	var length, mass, damping;
 	var velocity, acceleration, angle;
 	var g = 9.81/100;
-
-	// length slider
-    length_slider = document.getElementById("length_slider");
-    length = document.getElementById("length");
-    length.innerHTML = length_slider.value;
-    length_slider.oninput = function() {
-        length.innerHTML = this.value;
-	}
-
-    // mass slider
-    mass_slider = document.getElementById("mass_slider");
-    mass = document.getElementById("mass");
-    mass.innerHTML = mass_slider.value;
-    mass_slider.oninput = function() {
-        mass.innerHTML = this.value;
-	}
-
-    // damping slider
-    damping_slider = document.getElementById("damping_slider");
-    damping = document.getElementById("damping");
-    damping.innerHTML = damping_slider.value;
-    damping_slider.oninput = function() {
-		damping.innerHTML = this.value;
-	}
 
     var canvas = document.getElementById("pendulum");
 	var ctx = canvas.getContext("2d");
@@ -47,10 +20,14 @@ function pendulum() {
 		velocity = 0.0;
 		acceleration = 0.0;
 		angle = Math.PI/3;
-		xpos = canvas.width/2 + length.innerHTML*Math.sin(angle);
-		ypos = canvas.height/5 + length.innerHTML*Math.cos(angle);
+		length = lengthSlider.value;
+		mass = massSlider.value;
+		damping = dampingSlider.value;
+		xpos = canvas.width/2 + length*Math.sin(angle);
+		ypos = canvas.height/5 + length*Math.cos(angle);
 	}
 
+	// draw vector
 	function drawArrow(fromx, fromy, tox, toy) {
 		var rotate = Math.atan2(toy-fromy,tox-fromx);
 		ctx.strokeStyle = "cyan";
@@ -65,33 +42,64 @@ function pendulum() {
 		ctx.stroke();
 	}
 
-	function Slider(x, y, min, max, step, value) {
+	// slider object
+	function Slider(label, x, y, min, max, value, step, unit, color) {
+		this.label = label;
 		this.x = x;
 		this.y = y;
 		this.min = min;
 		this.max = max;
-		this.step = step;
 		this.value = value;
+		this.step = step || 1;
+		this.unit = unit || "";
+		this.color = color || "cyan";
+		this.valuex = x + value/max*100;
+		this.valuey = y;
+		this.hover = false;
 		this.dragged = false;
-		function draw() {
-			ctx.strokeStyle = "cyan";
+		this.drawSlider = function() {
+			// draw line
+			ctx.strokeStyle = this.color;
 			ctx.fillStyle = "black";
-			ctx.lineWidth = 1;
-			if (dragged)
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.moveTo(this.x, this.y-3);
+			ctx.lineTo(this.x+100, this.y-3);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(this.x, this.y+3);
+			ctx.lineTo(this.x+100, this.y+3);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.arc(this.x, this.y, 3, 0.5*Math.PI, 1.5*Math.PI);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.arc(this.x+100, this.y, 3, 0.5*Math.PI, 1.5*Math.PI, true);
+			ctx.stroke();
+			// draw bulb
+			ctx.shadowColor = "#66FFFF";
+			if (this.hover)
 				ctx.shadowBlur = 12;
 			else
 				ctx.shadowBlur = 0;
 			ctx.beginPath();
-			ctx.moveTo(x, y);
-			ctx.lineTo(x+100, y);
-			ctx.stroke();
-			ctx.beginPath();
-			let location = value/max*100;
-			ctx.arc(x+location, y, 5, 0, 2*Math.PI);
+			ctx.arc(this.valuex, this.valuey, 6, 0, 2*Math.PI);
 			ctx.fill();
 			ctx.stroke();
+			// write label
+			ctx.shadowBlur = 0;
+			ctx.font = "10pt Verdana";
+			ctx.fillStyle = this.color;
+			ctx.textAlign = "left";
+			ctx.fillText(this.label + ": " + this.value + " " + this.unit, this.x, this.y-20);
 		}
 	}
+
+	// slider variables
+	var lengthSlider = new Slider("Length", 25, 300, 50, 200, 120, 1, "cm");
+	var massSlider = new Slider("Mass", 25, 340, 1, 40, 20, 1, "g");
+	var dampingSlider = new Slider("Damping", 25, 380, 0, 1, 0.3, 0.1);
+	var sliders = [lengthSlider, massSlider, dampingSlider];
 
 	function redraw() {
 		// draw canvas
@@ -101,9 +109,9 @@ function pendulum() {
 
 		// handle physics
 		if (!clicked) {
-			acceleration = -1*g/length.innerHTML * Math.sin(angle);
+			acceleration = -1*g/length * Math.sin(angle);
 			velocity += acceleration;
-			velocity *= (1 - damping.innerHTML*0.0015);
+			velocity *= (1 - damping*0.01);
 			angle += velocity;
 		}
 		// handle mouse drag
@@ -112,8 +120,16 @@ function pendulum() {
 			dy = mousey - canvas.height/4;
 			angle = Math.atan2(-1*dy, dx) + Math.PI/2;
 		}
-		xpos = canvas.width/2 + length.innerHTML*Math.sin(angle);
-		ypos = canvas.height/4 + length.innerHTML*Math.cos(angle);
+		xpos = canvas.width/2 + length*Math.sin(angle);
+		ypos = canvas.height/4 + length*Math.cos(angle);
+
+		// draw sliders
+		length = lengthSlider.value;
+		mass = massSlider.value;
+		damping = dampingSlider.value;
+		for (let i = 0; i < sliders.length; i++) {
+			sliders[i].drawSlider();
+		}
 
 		// draw string
 		ctx.shadowBlur = 0;
@@ -130,7 +146,7 @@ function pendulum() {
 		
 		// draw ball
 		if (clicked) {
-			drawArrow(xpos, ypos, xpos, ypos+mass.innerHTML*g*100);
+			drawArrow(xpos, ypos, xpos, ypos+mass*g*100);
 			ctx.shadowBlur = 12;
 		}
 		else
@@ -140,7 +156,7 @@ function pendulum() {
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = "#00FF00";
 		ctx.fillStyle = "black";
-		ctx.arc(xpos, ypos, mass.innerHTML, 0, 2*Math.PI);
+		ctx.arc(xpos, ypos, mass, 0, 2*Math.PI);
 		ctx.fill();
 		ctx.stroke();
 
@@ -160,10 +176,10 @@ function pendulum() {
 			ctx.fillText("Angle: \u03B8 = " + theta.toFixed(0) + "\xB0", canvas.width/2, canvas.height/5 - 15);
 		}
 		// force of tension
-		var tension = mass.innerHTML/1000*9.81*Math.cos(angle);
+		var tension = mass/1000*9.81*Math.cos(angle);
 		ctx.fillText("Tension: F = " + tension.toFixed(2) + " N", canvas.width/2, canvas.height*4/5+25)
 		// period
-		var period = 2*Math.PI*Math.sqrt(0.01*length.innerHTML/9.81);
+		var period = 2*Math.PI*Math.sqrt(0.01*length/9.81);
 		ctx.fillText("Period: T = " + period.toFixed(2) + " s", canvas.width/2, canvas.height*4/5+45);
 
 		setTimeout(redraw, 1);
@@ -176,16 +192,48 @@ function pendulum() {
 	window.onmousedown = function(e) {
 		var x = e.clientX - canvas.offsetLeft;
 		var y = e.clientY - canvas.offsetTop;
-		if (Math.sqrt(Math.pow(xpos-x, 2) + Math.pow(ypos-y, 2)) < mass.innerHTML) {
+		// if ball is clicked
+		if (Math.sqrt(Math.pow(xpos-x, 2) + Math.pow(ypos-y, 2)) < mass) {
 			clicked = true;
 			mousex = x;
 			mousey = y;
 		}
+		// if slider is clicked
+		else {
+			for (let i = 0; i < sliders.length; i++) {
+				if (Math.sqrt(Math.pow(sliders[i].valuex-x, 2) + Math.pow(sliders[i].valuey-y, 2)) < 7) {
+					sliders[i].dragged = true;
+					mousex = x;
+					mousey = y;
+					break;
+				}
+			}
+		}
 	}
 	window.onmousemove = function(e) {
+		var x = e.clientX - canvas.offsetLeft;
+		var y = e.clientY - canvas.offsetTop;
 		if (clicked) {
-			mousex = e.clientX - canvas.offsetLeft;
-			mousey = e.clientY - canvas.offsetTop;
+			mousex = x;
+			mousey = y;
+		}
+		for (let i = 0; i < sliders.length; i++) {
+			sliders[i].hover = Math.sqrt(Math.pow(sliders[i].valuex-x, 2) + Math.pow(sliders[i].valuey-y, 2)) < 7;
+			if (sliders[i].dragged) {
+				sliders[i].hover = true;
+				let location = x - sliders[i].x;
+				if (location < 0)
+					location = 0;
+				else if (location > 100)
+					location = 100;
+				let increment = (sliders[i].max-sliders[i].min)/sliders[i].step;
+				if (increment > 100)
+					increment = 1;
+				else increment = 100/increment;
+				location = Math.ceil(location/increment) * increment;
+				sliders[i].value = (location/100)*(sliders[i].max-sliders[i].min)+sliders[i].min;
+				sliders[i].valuex = sliders[i].x+location;
+			}
 		}
 	}
 	window.onmouseup = function(e) {
@@ -194,6 +242,11 @@ function pendulum() {
 			clicked = false;
 			if (angle == Math.PI)
 				angle -= 0.01;
+		}
+		for (let i = 0; i < sliders.length; i++) {
+			if (sliders[i].dragged) {
+				sliders[i].dragged = false;
+			}
 		}
 	}
 
