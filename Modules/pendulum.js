@@ -4,8 +4,8 @@ function pendulum() {
 
 	// positioning variables
 	var xpos, ypos, mousex, mousey;
-	var clicked = false, paused = false, vectors = false;
-	var showForces = false, showVectors = false;
+	var clicked = false, paused = false;
+	var showForces = true, showVectors = false;
 
 	// physics variables
 	var length, mass, damping;
@@ -118,9 +118,9 @@ function pendulum() {
 		ctx.strokeStyle = "cyan";
 		ctx.fillStyle = "black";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.beginPath();
 		ctx.rect(0, 0, canvas.width, canvas.height);
 		ctx.stroke();
-		ctx.shadowColor = "#66FF66";
 
 		// handle physics
 		if (!clicked) {
@@ -160,17 +160,20 @@ function pendulum() {
 		ctx.fill();
 		
 		// draw force vectors
-		if (clicked) {
-			let grav = mass*g/10;
+		if (showForces && clicked) {
+			let mg = mass*g/10;
+			let theta = 3*Math.PI/2+Math.atan2(xpos-canvas.width/2,ypos-canvas.height/10);
+			console.log(theta*180/Math.PI);
 			ctx.shadowBlur = 12;
 			ctx.shadowColor = "#FFFF66";
-			drawVector(xpos, ypos, grav, Math.PI/2, "Fgrav = mg", grav);
-			drawVector(xpos, ypos, grav*Math.cos(angle), Math.PI/2-angle, "Fx = mg cos \u03b8", grav*Math.cos(angle));
-			drawVector(xpos, ypos, grav*Math.sin(angle), Math.PI-angle, "Fy = mg sin \u03b8", grav*Math.sin(angle));
-			drawVector(xpos, ypos, grav*Math.cos(angle), 3*Math.PI/2-angle, "T = -mg cos \u03b8", -1*grav*Math.cos(angle));
+			drawVector(xpos, ypos, mg, Math.PI/2, "Fmg = mg", mg);
+			//drawVector(xpos, ypos, mg*Math.cos(theta), theta, "Fx = mg cos \u03b8", mg*Math.cos(theta));
+			drawVector(xpos, ypos, mg*Math.cos(angle), Math.PI/2-angle, "Fx = mg cos \u03b8", mg*Math.cos(angle));
+			drawVector(xpos, ypos, mg*Math.sin(angle), Math.PI-angle, "Fy = mg sin \u03b8", mg*Math.sin(angle));
+			drawVector(xpos, ypos, mg*Math.cos(angle), 3*Math.PI/2-angle, "T = -mg cos \u03b8", -1*mg*Math.cos(angle));
 		}
 		// draw velocity and acceleration vectors
-		if (paused) {
+		if (showVectors && !clicked) {
 			let speed = Math.sqrt(2*g*length*(1-Math.cos(Math.PI-angle)));
 			let dir = Math.PI-angle;
 			if (angle < 0)
@@ -208,14 +211,14 @@ function pendulum() {
 		ctx.textAlign = "center";
 		// angle
 		if (clicked || paused) {
-			var theta = angle*180/Math.PI % 360;
+			let theta = angle*180/Math.PI % 360;
 			ctx.fillText("Angle: \u03b8 = " + theta.toFixed(0) + "\xB0", canvas.width/2, canvas.height/10 - 15);
 		}
 		// force of tension
-		var tension = mass/1000*9.81*Math.cos(angle);
+		let tension = mass/1000*9.81*Math.cos(angle);
 		//ctx.fillText("Tension: F = " + tension.toFixed(2) + " N", canvas.width/2, canvas.height*4/5+25)
 		// period
-		var period = 2*Math.PI*Math.sqrt(0.01*length/9.81);
+		let period = 2*Math.PI*Math.sqrt(0.01*length/9.81);
 		//ctx.fillText("Period: T = " + period.toFixed(2) + " s", canvas.width/2, canvas.height*4/5+45);
 
 		setTimeout(redraw, 1);
