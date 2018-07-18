@@ -1,11 +1,13 @@
-h1 {
-	font-family: Calibri;
+body {
+	font-family: Consolas;
 	font-weight: bold;
+	color: white;
+	background-color: black;
+}
+h1 {
 	font-size: 14pt;
 }
 p {
-	font-family: Calibri;
-	font-weight: bold;
 	font-size: 12pt;
 }
 
