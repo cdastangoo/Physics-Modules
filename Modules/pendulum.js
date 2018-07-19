@@ -12,8 +12,8 @@ function pendulum() {
 	var velocity, acceleration, angle;
 	var g = 9.81/100;
 
-    // canvas
-    var canvas = document.getElementById("pendulum");
+	// canvas
+	var canvas = document.getElementById("pendulum");
 	var ctx = canvas.getContext("2d");
 
 	// slider object
@@ -297,10 +297,10 @@ function pendulum() {
 			if (key == 32) {
 				reset();
 			}
-            // p or esc: pause
-            if (key == 27 || key == 80) {
-                paused = !paused;
-            }
+			// p or esc: pause
+			if (key == 27 || key == 80) {
+				paused = !paused;
+			}
 		}
 	}
 }
