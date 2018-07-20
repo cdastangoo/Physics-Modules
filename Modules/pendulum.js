@@ -4,7 +4,7 @@ function pendulum() {
 
 	// positioning variables
 	var xpos, ypos, mousex, mousey;
-	var clicked = false, paused = false;
+	var ballClicked = false, paused = false;
 	var showForces = true, showVectors = false;
 
 	// physics variables
@@ -16,69 +16,15 @@ function pendulum() {
 	var canvas = document.getElementById("pendulum");
 	var ctx = canvas.getContext("2d");
 
-	// slider object
-	function Slider(label, x, y, min, max, value, step, unit, color) {
-		this.label = label;
-		this.x = x;
-		this.y = y;
-		this.min = min;
-		this.max = max;
-		this.value = value;
-		this.step = step || 1;
-		this.unit = unit || "";
-		this.color = color || "cyan";
-		this.valuex = x + value/max*(canvas.width/2);
-		this.valuey = y;
-		this.hover = false;
-		this.dragged = false;
-		this.drawSlider = function() {
-			// draw line
-			ctx.strokeStyle = this.color;
-			ctx.fillStyle = "black";
-			ctx.lineWidth = 2;
-			ctx.beginPath();
-			ctx.moveTo(this.x, this.y-3);
-			ctx.lineTo(this.x+canvas.width/2, this.y-3);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(this.x, this.y+3);
-			ctx.lineTo(this.x+canvas.width/2, this.y+3);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.arc(this.x, this.y, 3, 0.5*Math.PI, 1.5*Math.PI);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.arc(this.x+canvas.width/2, this.y, 3, 0.5*Math.PI, 1.5*Math.PI, true);
-			ctx.stroke();
-			// draw bulb
-			ctx.shadowColor = "#66FFFF";
-			if (this.hover)
-				ctx.shadowBlur = 12;
-			else
-				ctx.shadowBlur = 0;
-			ctx.beginPath();
-			ctx.arc(this.valuex, this.valuey, 6, 0, 2*Math.PI);
-			ctx.fill();
-			ctx.stroke();
-			// write label
-			ctx.shadowBlur = 0;
-			//ctx.font = "bold 10pt Consolas";
-			ctx.font = "10pt Verdana";
-			ctx.fillStyle = this.color;
-			ctx.textAlign = "left";
-			ctx.fillText(this.label + ": " + this.value + " " + this.unit, this.x+5, this.y-15);
-		}
-	}
-
 	// slider variables
-	var lengthSlider = new Slider("Length", canvas.width/4, 340, 50, 200, 120, 1, "cm");
-	var massSlider = new Slider("Mass", canvas.width/4, 380, 1, 40, 20, 1, "g");
-	var dampingSlider = new Slider("Damping", canvas.width/4, 420, 0, 1, 0, 0.1);
+	var lengthSlider = new Slider(canvas, "Length", canvas.width/4, 340, 50, 200, 120, 1, "cm");
+	var massSlider = new Slider(canvas, "Mass", canvas.width/4, 380, 1, 40, 20, 1, "g");
+	var dampingSlider = new Slider(canvas, "Damping", canvas.width/4, 420, 0, 1, 0, 0.1);
 	var sliders = [lengthSlider, massSlider, dampingSlider];
 
 	// reset simluation
 	function reset() {
-		clicked = false;
+		ballClicked = false;
 		velocity = 0.0;
 		acceleration = 0.0;
 		angle = Math.PI/3;
@@ -123,7 +69,7 @@ function pendulum() {
 		ctx.stroke();
 
 		// handle physics
-		if (!clicked) {
+		if (!ballClicked) {
 			acceleration = -1*g/length * Math.sin(angle);
 			velocity += acceleration;
 			velocity *= (1 - damping*0.01);
@@ -158,9 +104,9 @@ function pendulum() {
 		ctx.beginPath();
 		ctx.arc(canvas.width/2, canvas.height/10, 3, 0, 2*Math.PI);
 		ctx.fill();
-		
+
 		// draw force vectors
-		if (showForces && clicked) {
+		if (showForces && ballClicked) {
 			let mg = mass*g/10;
 			let theta = 3*Math.PI/2+Math.atan2(xpos-canvas.width/2,ypos-canvas.height/10);
 			console.log(theta*180/Math.PI);
@@ -173,7 +119,7 @@ function pendulum() {
 			drawVector(xpos, ypos, mg*Math.cos(angle), 3*Math.PI/2-angle, "T = -mg cos \u03b8", -1*mg*Math.cos(angle));
 		}
 		// draw velocity and acceleration vectors
-		if (showVectors && !clicked) {
+		if (showVectors && !ballClicked) {
 			let speed = Math.sqrt(2*g*length*(1-Math.cos(Math.PI-angle)));
 			let dir = Math.PI-angle;
 			if (angle < 0)
@@ -186,7 +132,7 @@ function pendulum() {
 		}
 
 		// draw ball
-		if (clicked)
+		if (ballClicked)
 			ctx.shadowBlur = 12;
 		else
 			ctx.shadowBlur = 0;
@@ -210,7 +156,7 @@ function pendulum() {
 		ctx.fillStyle = "white";
 		ctx.textAlign = "center";
 		// angle
-		if (clicked || paused) {
+		if (ballClicked || paused) {
 			let theta = angle*180/Math.PI % 360;
 			ctx.fillText("Angle: \u03b8 = " + theta.toFixed(0) + "\xB0", canvas.width/2, canvas.height/10 - 15);
 		}
@@ -223,7 +169,7 @@ function pendulum() {
 
 		setTimeout(redraw, 1);
 	}
-	
+
 	reset();
 	setTimeout(redraw, 1);
 
@@ -231,13 +177,13 @@ function pendulum() {
 	window.onmousedown = function(e) {
 		var x = e.clientX - canvas.offsetLeft;
 		var y = e.clientY - canvas.offsetTop;
-		// if ball is clicked
+		// if ball is ballClicked
 		if (Math.sqrt(Math.pow(xpos-x, 2) + Math.pow(ypos-y, 2)) < mass) {
-			clicked = true;
+			ballClicked = true;
 			mousex = x;
 			mousey = y;
 		}
-		// if slider is clicked
+		// if slider is ballClicked
 		else {
 			for (let i = 0; i < sliders.length; i++) {
 				if (Math.sqrt(Math.pow(sliders[i].valuex-x, 2) + Math.pow(sliders[i].valuey-y, 2)) < 7) {
@@ -252,7 +198,7 @@ function pendulum() {
 	window.onmousemove = function(e) {
 		var x = e.clientX - canvas.offsetLeft;
 		var y = e.clientY - canvas.offsetTop;
-		if (clicked) {
+		if (ballClicked) {
 			mousex = x;
 			mousey = y;
 		}
@@ -276,9 +222,9 @@ function pendulum() {
 		}
 	}
 	window.onmouseup = function(e) {
-		if (clicked) {
+		if (ballClicked) {
 			velocity = 0.0;
-			clicked = false;
+			ballClicked = false;
 			if (angle == Math.PI)
 				angle -= 0.01;
 		}
