@@ -46,22 +46,45 @@ class PauseButton {
 
 		// draw corners
 		ctx.beginPath();
-		ctx.arc(this.x, this.y, 3, Math.PI, 1.5*Math.PI);
+		ctx.arc(this.x, this.y, 3, Math.PI, 3*Math.PI/2);
 		ctx.stroke();
 		ctx.beginPath();
-		ctx.arc(this.x+this.width, this.y, 3, 1.5*Math.PI, 2*Math.PI);
+		ctx.arc(this.x+this.width, this.y, 3, 3*Math.PI/2, 2*Math.PI);
 		ctx.stroke();
 		ctx.beginPath();
-		ctx.arc(this.x, this.y+this.width, 3, 0.5*Math.PI, Math.PI);
+		ctx.arc(this.x, this.y+this.width, 3, Math.PI/2, Math.PI);
 		ctx.stroke();
 		ctx.beginPath();
-		ctx.arc(this.x+this.width, this.y+this.width, 3, 0, 0.5*Math.PI);
+		ctx.arc(this.x+this.width, this.y+this.width, 3, 0, Math.PI/2);
 		ctx.stroke();
 
 		// draw pause indicator
 		ctx.shadowBlur = 0;
 		if (this.selected) {
-			// TODO: draw play symbol
+			// play symbol edges
+			ctx.lineWidth = 2;
+			ctx.beginPath();
+			ctx.moveTo(this.x+this.width/4 + 3*Math.cos(Math.PI/3), this.y+this.width/4 - 3*Math.sin(Math.PI/3));
+			ctx.lineTo(this.x+Math.sqrt(3)/2*this.width-3 + 3*Math.cos(Math.PI/3), this.y+this.width/2 - 3*Math.sin(Math.PI/3));
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(this.x+this.width/4 + 3*Math.cos(Math.PI/3), this.y+3*this.width/4 + 3*Math.sin(Math.PI/3));
+			ctx.lineTo(this.x+Math.sqrt(3)/2*this.width-3 + 3*Math.cos(Math.PI/3), this.y+this.width/2 + 3*Math.sin(Math.PI/3))
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(this.x+this.width/4-3, this.y+this.width/4);
+			ctx.lineTo(this.x+this.width/4-3, this.y+3*this.width/4);
+			ctx.stroke();
+			// play symbol corners
+			ctx.beginPath();
+			ctx.arc(this.x+this.width/4, this.y+this.width/4, 3, Math.PI, 5*Math.PI/3); //19*Math.PI/12);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.arc(this.x+this.width/4, this.y+3*this.width/4, 3, Math.PI/3, Math.PI); //5*Math.PI/12, Math.PI);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.arc(this.x+Math.sqrt(3)/2*this.width-3, this.y+this.width/2, 3, 5*Math.PI/3, Math.PI/3);
+			ctx.stroke();
 		}
 		else {
 			// TODO: draw pause symbol
