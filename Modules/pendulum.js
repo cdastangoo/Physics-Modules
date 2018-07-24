@@ -17,10 +17,15 @@ function pendulum() {
 	var ctx = canvas.getContext("2d");
 
 	// slider variables
-	var lengthSlider = new Slider(canvas, "Length", canvas.width/4, 340, 50, 200, 120, 1, "cm");
-	var massSlider = new Slider(canvas, "Mass", canvas.width/4, 380, 1, 40, 20, 1, "g");
-	var dampingSlider = new Slider(canvas, "Damping", canvas.width/4, 420, 0, 1, 0, 0.1);
+	var lengthSlider = new Slider(canvas, "Length", 40, 360, 50, 200, 120, 1, "cm");
+	var massSlider = new Slider(canvas, "Mass", 40, 400, 1, 40, 20, 1, "g");
+	var dampingSlider = new Slider(canvas, "Damping", 40, 440, 0, 1, 0, 0.1);
 	var sliders = [lengthSlider, massSlider, dampingSlider];
+
+	// checkbox variables
+	var forceCheckbox = new Checkbox(canvas, "Force vectors", 320, 380);
+	var velocityCheckbox = new Checkbox(canvas, "Velocity vectors", 320, 420);
+	var checkboxes = [forceCheckbox, velocityCheckbox];
 
 	// reset simluation
 	function reset() {
@@ -44,6 +49,7 @@ function pendulum() {
 		let toy = fromy + (scale*magnitude+trans)*Math.sin(direction);
 		ctx.strokeStyle = color || "yellow";
 		ctx.lineWidth = 2;
+		ctx.shadowBlur = 12;
 		ctx.beginPath();
 		ctx.moveTo(fromx, fromy);
 		ctx.lineTo(tox, toy);
@@ -54,6 +60,7 @@ function pendulum() {
 		let lbl = label || "F = ma";
 		let force = value || "";
 		ctx.font = "10pt Verdana";
+		ctx.shadowBlur = 0;
 		ctx.fillText(lbl, tox+15, toy-5);
 		ctx.fillText(force.toFixed(2) + " N", tox+15, toy+10);
 	}
@@ -90,6 +97,11 @@ function pendulum() {
 		damping = dampingSlider.value;
 		for (let i = 0; i < sliders.length; i++) {
 			sliders[i].drawSlider();
+		}
+
+		// draw checkboxes
+		for (let i = 0; i < checkboxes.length; i++) {
+			checkboxes[i].drawCheckbox();
 		}
 
 		// draw string
@@ -219,6 +231,9 @@ function pendulum() {
 				sliders[i].value = (location/(canvas.width/2))*(sliders[i].max-sliders[i].min)+sliders[i].min;
 				sliders[i].valuex = sliders[i].x+location;
 			}
+		}
+		for (let i = 0; i < checkboxes.length; i++) {
+			checkboxes[i].hover = Math.sqrt(Math.pow(checkboxes[i].x+4-x, 2) + Math.pow(checkboxes[i].y+4-y, 2)) < 7;
 		}
 	}
 	window.onmouseup = function(e) {
