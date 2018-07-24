@@ -7,6 +7,7 @@ class Slider {
         this.x = x;
         this.y = y;
         this.min = min;
+        this.max = max;
         this.value = value;
         this.step = step || 1;
         this.unit = unit || "";
@@ -57,6 +58,8 @@ class Slider {
         ctx.font = "10pt Verdana";
         ctx.fillStyle = this.color;
         ctx.textAlign = "left";
+        if (this.step >= 1)
+            this.value = Math.round(this.value);
         ctx.fillText(this.label + ": " + this.value + " " + this.unit, this.x+5, this.y-15);
     }
 }
