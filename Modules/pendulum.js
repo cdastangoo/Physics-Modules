@@ -15,6 +15,7 @@ function pendulum() {
 	// canvas
 	var canvas = document.getElementById("pendulum");
 	var ctx = canvas.getContext("2d");
+	var pauseButton = new PauseButton(canvas, 360, 420, 30, true);
 
 	// slider variables
 	var lengthSlider = new Slider(canvas, "Length", 40, 360, 50, 200, 120, 1, "cm");
@@ -23,8 +24,8 @@ function pendulum() {
 	var sliders = [lengthSlider, massSlider, dampingSlider];
 
 	// checkbox variables
-	var forceCheckbox = new Checkbox(canvas, "Force vectors", 320, 380);
-	var velocityCheckbox = new Checkbox(canvas, "Velocity vectors", 320, 420);
+	var forceCheckbox = new Checkbox(canvas, "Force vectors", 320, 350);
+	var velocityCheckbox = new Checkbox(canvas, "Velocity vectors", 320, 380);
 	var checkboxes = [forceCheckbox, velocityCheckbox];
 
 	// reset simluation
@@ -103,6 +104,9 @@ function pendulum() {
 		for (let i = 0; i < checkboxes.length; i++) {
 			checkboxes[i].drawCheckbox();
 		}
+
+		// draw pause button
+		pauseButton.drawButton();
 
 		// draw string
 		ctx.shadowBlur = 0;
@@ -235,6 +239,7 @@ function pendulum() {
 		for (let i = 0; i < checkboxes.length; i++) {
 			checkboxes[i].hover = Math.sqrt(Math.pow(checkboxes[i].x+4-x, 2) + Math.pow(checkboxes[i].y+4-y, 2)) < 7;
 		}
+		pauseButton.hover = Math.sqrt(Math.pow(pauseButton.x+15-x, 2) + Math.pow(pauseButton.y+15-y, 2)) < 18;
 	}
 	window.onmouseup = function(e) {
 		if (ballClicked) {
