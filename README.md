@@ -1,6 +1,8 @@
 # Physics #
 
+Simulations of some basic (and a few advanced) concepts in physics.
 
+Topics include:
 * Newton's Laws of Motion
   * Free Fall
   * Horizontal Launch
