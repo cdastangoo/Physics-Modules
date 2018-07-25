@@ -1,14 +1,13 @@
 class PauseButton {
 
-	constructor(canvas, x, y, width, selected, color)
-	{
+	constructor(canvas, x, y, width, selected, color) {
 		// pause button variables
 		this.canvas = canvas;
 		this.x = x;
 		this.y = y;
-		this.width = width;
+		this.width = width || 32;
 		this.selected = selected || false;
-		this.color = color || "red";
+		this.color = color || "magenta";
 		this.hover = false;
 	}
 
@@ -20,9 +19,9 @@ class PauseButton {
 		ctx.lineWidth = 2;
 
 		// handle shadow
-		ctx.shadowColor = "#FF6666";
+		ctx.shadowColor = "#FF66FF";
 		if (this.hover)
-			ctx.shadowblur = 12;
+			ctx.shadowBlur = 12;
 		else
 			ctx.shadowBlur = 0;
 
@@ -59,7 +58,6 @@ class PauseButton {
 		ctx.stroke();
 
 		// draw pause indicator
-		ctx.shadowBlur = 0;
 		if (this.selected) {
 			// play symbol edges
 			ctx.lineWidth = 2;
