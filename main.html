@@ -1,36 +1,44 @@
 <html>
 <head>
-  <title>Physics</title>
-  <link rel="stylesheet" href="style.css">
-  <script type='text/javascript' src="Slider.js"></script>
-  <script type='text/javascript' src="Checkbox.js"></script>
-  <script type='text/javascript' src="PauseButton.js"></script>
+	<title>Physics</title>
+	<link rel="stylesheet" href="style.css">
+	<script type='text/javascript' src="Slider.js"></script>
+	<script type='text/javascript' src="Checkbox.js"></script>
+	<script type='text/javascript' src="PauseButton.js"></script>
 </head>
 <body>
-  <div>
-    <!-- <h1>Free Fall</h1>
-    <canvas id="freefall" width="480" height="480"></canvas>
-    <script src="freefall.js"></script> -->
-  </div>
-  <div>
-    <!-- <h1>Horizontal Launch</h1>
-    <canvas id="horizontal" width="480" height="480"></canvas>
-    <script src="horizontallaunch.js"></script> -->
-  </div>
-  <div>
-    <!-- <h1>Projectile Motion</h1>
-    <canvas id="projectile" width="480" height="480"></canvas>
-    <script src="projectilemotion.js"></script> -->
-  </div>
-  <div>
-    <!-- <h1>Friction on a Ramp</h1>
-    <canvas id="friction" width="480" height="480"></canvas>
-    <script src="frictionramp.js"></script> -->
-  </div>
-  <div>
-    <h1>Simple Pendulum</h1>
-    <canvas id="pendulum" width="480" height="480"></canvas>
-    <script src="pendulum.js"></script>
-  </div>
+	<h1>Physics</h1>
+	<div class="tab">
+		<button class="tablinks" onclick="openTab(event, 'default')" id="defaultTab">Default</button>
+		<button class="tablinks" onclick="openTab(event, 'motion')">Motion</button>
+		<button class="tablinks" onclick="openTab(event, 'friction')">Friction</button>
+	</div>
+	<div id="default" class="tabcontent">
+		<p>Simple Pendulum</p>
+		<canvas id="pendulum" width="480" height="480"></canvas>
+		<script src="pendulum.js"></script>
+		<p>Projectile Motion</p>
+		<canvas id="projectile" width="480" height="480"></canvas>
+		<script src="projectilemotion.js"></script>
+	</div>
+	<div id="motion" class="tabcontent">
+		<p>hello</p>
+	</div>
+	<script>
+		function openTab(e, name) {
+			var i, content, links;
+			content = document.getElementsByClassName("tabcontent");
+			for (let i = 0; i < content.length; i++) {
+				content[i].style.display = "none";
+			}
+			links = document.getElementsByClassName("tablinks");
+			for (let i = 0; i < links.length; i++) {
+				links[i].className = links[i].className.replace(" active", "");
+			}
+			document.getElementById(name).style.display = "block";
+			e.currentTarget.className += " active";
+		}
+		document.getElementById("defaultTab").click();
+	</script>
 </body>
 </html>
