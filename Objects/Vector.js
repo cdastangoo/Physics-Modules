@@ -11,7 +11,7 @@ class Vector {
 		this.dotted = dotted || false;
 		this.label = label || "";
 		this.subscript = subscript || "";
-		this.show = false;
+		this.show = true;
 	}
 
 	drawVector(newx, newy, newmag, newdir) {
@@ -19,9 +19,13 @@ class Vector {
 		let ctx = this.canvas.getContext("2d");
 		this.x = newx;
 		this.y = newy;
-		this.magnitude = newmag;
+		if (newmag < 0) {
+			newmag = Math.abs(newmag);
+			newdir = Math.PI+newdir;
+		}
+		this.magnitude = Math.abs(newmag);
 		this.direction = newdir;
-		if (!this.show || newmag <= 10)
+		if (!this.show || Math.abs(newmag) <= 3)
 			return;
 		let tox = this.x + this.magnitude*Math.cos(this.direction);
 		let toy = this.y + this.magnitude*Math.sin(this.direction);
@@ -30,7 +34,7 @@ class Vector {
 		ctx.strokeStyle = this.color;
 		ctx.lineWidth = 2;
 		if (this.dotted)
-			ctx.setLineDash([8, 3]);
+			ctx.setLineDash([5, 3]);
 		ctx.beginPath();
 		ctx.moveTo(this.x, this.y);
 		ctx.lineTo(tox, toy);
@@ -54,9 +58,5 @@ class Vector {
 				ctx.fillText(this.subscript, tox+20, toy);
 			}
 		}
-	}
-
-	drawVector() {
-		this.drawVector(this.x, this.y, this.magnitude, this.direction);
 	}
 }
