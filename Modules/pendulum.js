@@ -1,5 +1,3 @@
-//window.onload = function() { pendulum(); }
-
 function pendulum() {
 
 	// positioning variables
@@ -19,16 +17,21 @@ function pendulum() {
 	var pauseButton = new PauseButton(canvas, 325, 420, 32, true);
 	var resetButton = new ResetButton(canvas, 395, 420, 32);
 
-	// slider variables
+	// slider objects
 	var lengthSlider = new Slider(canvas, "Length", 40, 360, 50, 200, 120, 1, "cm");
 	var massSlider = new Slider(canvas, "Mass", 40, 400, 5, 40, 20, 1, "g");
 	var dampingSlider = new Slider(canvas, "Damping", 40, 440, 0, 1, 0, 0.1);
 	var sliders = [lengthSlider, massSlider, dampingSlider];
 
-	// checkbox variables
-	var forceCheckbox = new Checkbox(canvas, "Force vectors", 320, 350);
-	var omegaCheckbox = new Checkbox(canvas, "omega vectors", 320, 380);
-	var checkboxes = [forceCheckbox, omegaCheckbox];
+	// checkbox objects
+	var forceCheckbox = new Checkbox(canvas, "Forces", 320, 350);
+	var velocityCheckbox = new Checkbox(canvas, "Velocity", 320, 380);
+	var accelerationCheckbox = new Checkbox(canvas, "Acceleration", 320, 410);
+	var checkboxes = [forceCheckbox, velocityCheckbox, accelerationCheckbox];
+
+	// vector objects
+	var gVector, gxVector, gyVector, tensionVector, netVector;
+	var velocityVector, accelerationVector;
 
 	// reset simluation
 	function reset() {
@@ -41,35 +44,43 @@ function pendulum() {
 		damping = dampingSlider.value;
 		xpos = canvas.width/2 + length*Math.sin(angle);
 		ypos = canvas.height/8 + length*Math.cos(angle);
+		// create vectors
+		gVector = new Vector(canvas, xpos, ypos, mass*g/10, Math.PI/2);
+		gxVector = new Vector(canvas, xpos, ypos, mass*g/10*Math.cos(angle), Math.PI/2-angle, true);
+		gyVector = new Vector(canvas, xpos, ypos, mass*g/10*Math.sin(angle), Math.PI-angle, true);
+		tensionVector = new Vector(canvas, xpos, ypos, mass*g/10*Math.cos(angle), 3*Math.PI/2-angle);
+		netVector = new Vector(canvas, xpos, ypos, mass*g/10, Math.PI+angle);
+		velocityVector = new Vector(canvas, xpos, ypos, 0, 4*Math.PI/3, false, "red");
+		accelerationVector = new Vector(canvas, xpos, ypos, g/10, Math.PI+angle, false, "green");
 	}
 
-	// draw vectors
-	function drawVector(fromx, fromy, magnitude, direction, label, value, color) {
-		if (magnitude == 0)
-			return;
-		let trans = mass/2, scale = 500;
-		let tox = fromx + (scale*magnitude+trans)*Math.cos(direction);
-		let toy = fromy + (scale*magnitude+trans)*Math.sin(direction);
-		ctx.strokeStyle = color || "yellow";
-		ctx.lineWidth = 2;
-		ctx.shadowBlur = 12;
-		ctx.beginPath();
-		ctx.moveTo(fromx, fromy);
-		ctx.lineTo(tox, toy);
-		ctx.lineTo(tox - 8*Math.cos(direction-Math.PI/6), toy - 10*Math.sin(direction-Math.PI/6));
-		ctx.stroke();
-		ctx.strokeStyle = "blue";
-		ctx.beginPath();
-		ctx.moveTo(tox, toy);
-		ctx.lineTo(tox - 8*Math.cos(direction+Math.PI/6), toy - 10*Math.sin(direction+Math.PI/6));
-		ctx.stroke();
-		let lbl = label || "F = ma";
-		let force = value || "";
-		ctx.font = "10pt Verdana";
-		ctx.shadowBlur = 0;
-		ctx.fillText(lbl, tox+15, toy-5);
-		ctx.fillText(force.toFixed(2) + " N", tox+15, toy+10);
-	}
+	// // draw vectors
+	// function drawVector(fromx, fromy, magnitude, direction, label, value, color) {
+	// 	if (magnitude == 0)
+	// 		return;
+	// 	let trans = mass/2, scale = 500;
+	// 	let tox = fromx + (scale*magnitude+trans)*Math.cos(direction);
+	// 	let toy = fromy + (scale*magnitude+trans)*Math.sin(direction);
+	// 	ctx.strokeStyle = color || "yellow";
+	// 	ctx.lineWidth = 2;
+	// 	ctx.shadowBlur = 12;
+	// 	ctx.beginPath();
+	// 	ctx.moveTo(fromx, fromy);
+	// 	ctx.lineTo(tox, toy);
+	// 	ctx.lineTo(tox - 8*Math.cos(direction-Math.PI/6), toy - 10*Math.sin(direction-Math.PI/6));
+	// 	ctx.stroke();
+	// 	ctx.strokeStyle = "blue";
+	// 	ctx.beginPath();
+	// 	ctx.moveTo(tox, toy);
+	// 	ctx.lineTo(tox - 8*Math.cos(direction+Math.PI/6), toy - 10*Math.sin(direction+Math.PI/6));
+	// 	ctx.stroke();
+	// 	let lbl = label || "F = ma";
+	// 	let force = value || "";
+	// 	ctx.font = "10pt Verdana";
+	// 	ctx.shadowBlur = 0;
+	// 	ctx.fillText(lbl, tox+15, toy-5);
+	// 	ctx.fillText(force.toFixed(2) + " N", tox+15, toy+10);
+	// }
 
 	// main redraw function
 	function redraw() {
@@ -127,31 +138,6 @@ function pendulum() {
 		ctx.arc(canvas.width/2, canvas.height/8, 3, 0, 2*Math.PI);
 		ctx.fill();
 
-		// draw force vectors
-		if (showForces && ballClicked) {
-			let mg = mass*g/10;
-			let theta = 3*Math.PI/2+Math.atan2(xpos-canvas.width/2,ypos-canvas.height/8);
-			console.log(theta*180/Math.PI);
-			ctx.shadowBlur = 12;
-			ctx.shadowColor = "#FFFF66";
-			drawVector(xpos, ypos, mg, Math.PI/2, "Fg", mg);
-			//drawVector(xpos, ypos, mg*Math.cos(theta), theta, "Fx = mg cos \u03b8", mg*Math.cos(theta));
-			drawVector(xpos, ypos, mg*Math.cos(angle), Math.PI/2-angle, "Fx", mg*Math.cos(angle));
-			drawVector(xpos, ypos, mg*Math.sin(angle), Math.PI-angle, "Fy", mg*Math.sin(angle));
-			drawVector(xpos, ypos, mg*Math.cos(angle), 3*Math.PI/2-angle, "T", -1*mg*Math.cos(angle));
-		}
-		// draw omega and alpha vectors
-		if (showVectors && !ballClicked) {
-			let speed = Math.sqrt(2*g*length*(1-Math.cos(Math.PI-angle)));
-			let dir = Math.PI-angle;
-			if (angle < 0)
-				dir = Math.PI+angle;
-			ctx.shadowColor = "#FF6666";
-			drawVector(xpos, ypos, speed/10, dir, "v = \u221a2gL(1 - cos \u03b8)", speed, "red");
-			ctx.shadowColor = "#FFFF66";
-			let acc = 100*g*Math.sin(angle);
-			drawVector(xpos, ypos, acc, angle, "a = -g sin \u03b8", -1*acc);
-		}
 
 		// draw ball
 		if (ballClicked)
@@ -167,9 +153,34 @@ function pendulum() {
 		ctx.fill();
 		ctx.stroke();
 
-		//draw vectors
-		if (paused) {
-			ctx.shadowBlur = 0;
+		ctx.shadowBlur = 0;
+		// draw force vectors
+		if (showForces && ballClicked) {
+			let trans = mass/2, scale = 500;
+			let mg = scale*mass*g/10+trans;
+			let theta = 3*Math.PI/2+Math.atan2(xpos-canvas.width/2,ypos-canvas.height/8);
+			//console.log(theta*180/Math.PI);
+			gVector.drawVector(xpos, ypos, mg, Math.PI/2);
+			gxVector.drawVector(xpos, ypos, mg*Math.cos(angle), Math.PI/2-angle);
+			gyVector.drawVector(xpos, ypos, mg*Math.sin(angle), Math.PI-angle);
+			tensionVector.drawVector(xpos, ypos, mg*Math.cos(angle), 3*Math.PI/2-angle);
+			netVector.drawVector(xpos, ypos, mg, Math.PI+angle);
+			// drawVector(xpos, ypos, mg, Math.PI/2, "Fg", mg);
+			// drawVector(xpos, ypos, mg*Math.cos(angle), Math.PI/2-angle, "Fx", mg*Math.cos(angle));
+			// drawVector(xpos, ypos, mg*Math.sin(angle), Math.PI-angle, "Fy", mg*Math.sin(angle));
+			// drawVector(xpos, ypos, mg*Math.cos(angle), 3*Math.PI/2-angle, "T", -1*mg*Math.cos(angle));
+		}
+		// draw omega and alpha vectors
+		if (showVectors && !ballClicked) {
+			let speed = Math.sqrt(2*g*length*(1-Math.cos(Math.PI-angle)));
+			let dir = Math.PI-angle;
+			if (angle < 0)
+				dir = Math.PI+angle;
+			let acc = 100*g*Math.sin(angle);
+			velocityVector.drawVector(xpos, ypos, speed/10, dir);
+			accelerationVector.drawVector(xpos, ypos, acc, angle);
+			// drawVector(xpos, ypos, speed/10, dir, "v = \u221a2gL(1 - cos \u03b8)", speed, "red");
+			// drawVector(xpos, ypos, acc, angle, "a = -g sin \u03b8", -1*acc);
 		}
 
 		// write labels
