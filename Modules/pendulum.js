@@ -1,4 +1,4 @@
-window.onload = function() { pendulum(); }
+//window.onload = function() { pendulum(); }
 
 function pendulum() {
 
@@ -8,14 +8,16 @@ function pendulum() {
 	var showForces = true, showVectors = false;
 
 	// physics variables
-	var length, mass, damping;
-	var velocity, acceleration, angle;
-	var g = 9.81/100;
+	var length, mass, damping;   // user defined parameters
+	var velocity, acceleration;  // vector parameters
+	var omega, alpha, angle;     // repositioning parameters
+	var g = 9.81/100;  // gravity
 
 	// canvas
 	var canvas = document.getElementById("pendulum");
 	var ctx = canvas.getContext("2d");
-	var pauseButton = new PauseButton(canvas, 360, 420, 32, true);
+	var pauseButton = new PauseButton(canvas, 325, 420, 32, true);
+	var resetButton = new ResetButton(canvas, 395, 420, 32);
 
 	// slider variables
 	var lengthSlider = new Slider(canvas, "Length", 40, 360, 50, 200, 120, 1, "cm");
@@ -25,14 +27,14 @@ function pendulum() {
 
 	// checkbox variables
 	var forceCheckbox = new Checkbox(canvas, "Force vectors", 320, 350);
-	var velocityCheckbox = new Checkbox(canvas, "Velocity vectors", 320, 380);
-	var checkboxes = [forceCheckbox, velocityCheckbox];
+	var omegaCheckbox = new Checkbox(canvas, "omega vectors", 320, 380);
+	var checkboxes = [forceCheckbox, omegaCheckbox];
 
 	// reset simluation
 	function reset() {
 		ballClicked = false;
-		velocity = 0.0;
-		acceleration = 0.0;
+		omega = 0.0;
+		alpha = 0.0;
 		angle = Math.PI/3;
 		length = lengthSlider.value;
 		mass = massSlider.value;
@@ -55,6 +57,9 @@ function pendulum() {
 		ctx.moveTo(fromx, fromy);
 		ctx.lineTo(tox, toy);
 		ctx.lineTo(tox - 8*Math.cos(direction-Math.PI/6), toy - 10*Math.sin(direction-Math.PI/6));
+		ctx.stroke();
+		ctx.strokeStyle = "blue";
+		ctx.beginPath();
 		ctx.moveTo(tox, toy);
 		ctx.lineTo(tox - 8*Math.cos(direction+Math.PI/6), toy - 10*Math.sin(direction+Math.PI/6));
 		ctx.stroke();
@@ -78,10 +83,10 @@ function pendulum() {
 
 		// handle physics
 		if (!ballClicked) {
-			acceleration = -1*g/length * Math.sin(angle);
-			velocity += acceleration;
-			velocity *= (1 - damping*0.01);
-			angle += velocity;
+			alpha = -1*g/length * Math.sin(angle);
+			omega += alpha;
+			omega *= (1 - damping*0.01);
+			angle += omega;
 		}
 		// handle mouse drag
 		else if (!paused) {
@@ -105,8 +110,9 @@ function pendulum() {
 			checkboxes[i].drawCheckbox();
 		}
 
-		// draw pause button
+		// draw buttons
 		pauseButton.drawButton();
+		resetButton.drawButton();
 
 		// draw string
 		ctx.shadowBlur = 0;
@@ -134,7 +140,7 @@ function pendulum() {
 			drawVector(xpos, ypos, mg*Math.sin(angle), Math.PI-angle, "Fy", mg*Math.sin(angle));
 			drawVector(xpos, ypos, mg*Math.cos(angle), 3*Math.PI/2-angle, "T", -1*mg*Math.cos(angle));
 		}
-		// draw velocity and acceleration vectors
+		// draw omega and alpha vectors
 		if (showVectors && !ballClicked) {
 			let speed = Math.sqrt(2*g*length*(1-Math.cos(Math.PI-angle)));
 			let dir = Math.PI-angle;
@@ -182,15 +188,13 @@ function pendulum() {
 		// period
 		let period = 2*Math.PI*Math.sqrt(0.01*length/9.81);
 		//ctx.fillText("Period: T = " + period.toFixed(2) + " s", canvas.width/2, canvas.height*4/5+45);
-
-		setTimeout(redraw, 1);
 	}
 
 	reset();
-	setTimeout(redraw, 1);
+	setInterval(redraw, 1);
 
 	// mouse click listener
-	window.onmousedown = function(e) {
+	canvas.onmousedown = function(e) {
 		var x = e.clientX - canvas.offsetLeft;
 		var y = e.clientY - canvas.offsetTop;
 		// if ball is ballClicked
@@ -212,7 +216,7 @@ function pendulum() {
 		}
 	}
 	// mouse motion listener
-	window.onmousemove = function(e) {
+	canvas.onmousemove = function(e) {
 		var x = e.clientX - canvas.offsetLeft;
 		var y = e.clientY - canvas.offsetTop;
 		if (ballClicked) {
@@ -241,11 +245,12 @@ function pendulum() {
 			checkboxes[i].hover = Math.sqrt(Math.pow(checkboxes[i].x-x, 2) + Math.pow(checkboxes[i].y-y, 2)) < checkboxes[i].width+2;
 		}
 		pauseButton.hover = Math.sqrt(Math.pow(pauseButton.x+pauseButton.width/2-x, 2) + Math.pow(pauseButton.y+pauseButton.width/2-y, 2)) < 3*pauseButton.width/4;
+		resetButton.hover = Math.sqrt(Math.pow(resetButton.x+resetButton.width/2-x, 2) + Math.pow(resetButton.y+resetButton.width/2-y, 2)) < 3*resetButton.width/4;
 	}
 	// release mouse click listener
-	window.onmouseup = function(e) {
+	canvas.onmouseup = function(e) {
 		if (ballClicked) {
-			velocity = 0.0;
+			omega = 0.0;
 			ballClicked = false;
 			if (angle == Math.PI)
 				angle -= 0.01;
