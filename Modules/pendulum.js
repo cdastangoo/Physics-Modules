@@ -3,7 +3,8 @@ function pendulum() {
 	// positioning variables
 	var xpos, ypos, mousex, mousey;
 	var ballClicked = false, paused = false;
-	var showForces = true, showVectors = false;
+	var showForces = true, showNetForce = false;
+	var showVelocity = false, showAcceleration = false;
 
 	// physics variables
 	var length, mass, damping;   // user defined parameters
