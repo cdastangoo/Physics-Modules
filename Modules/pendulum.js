@@ -3,8 +3,8 @@ function pendulum() {
 	// positioning variables
 	var xpos, ypos, mousex, mousey;
 	var ballClicked = false, paused = false;
-	var showForces = true, showNetForce = false;
-	var showVelocity = false, showAcceleration = false;
+	var showForces = false, showNetForce = false;
+	var showVelocity = true, showAcceleration = true;
 
 	// physics variables
 	var length, mass, damping;   // user defined parameters
@@ -31,8 +31,9 @@ function pendulum() {
 	var checkboxes = [forceCheckbox, velocityCheckbox, accelerationCheckbox];
 
 	// vector objects
-	var gVector, gxVector, gyVector, tensionVector, netVector;
+	var gVector, gxVector, gyVector, tensionVector;
 	var velocityVector, accelerationVector;
+	var fmax, vmax, thetamax;
 
 	// reset simluation
 	function reset() {
@@ -40,6 +41,7 @@ function pendulum() {
 		omega = 0.0;
 		alpha = 0.0;
 		angle = Math.PI/3;
+		thetamax = angle;
 		length = lengthSlider.value;
 		mass = massSlider.value;
 		damping = dampingSlider.value;
@@ -67,7 +69,7 @@ function pendulum() {
 
 		// handle physics
 		if (!ballClicked) {
-			alpha = -1*g/length * Math.sin(angle);
+			alpha = -0.2*g/length * Math.sin(angle);
 			omega += alpha;
 			omega *= (1 - damping*0.01);
 			angle += omega;
@@ -77,9 +79,10 @@ function pendulum() {
 			dx = mousex - canvas.width/2;
 			dy = mousey - canvas.height/8;
 			angle = Math.atan2(-1*dy, dx) + Math.PI/2;
+			thetamax = angle;
 		}
-		xpos = canvas.width/2 + length*Math.sin(angle);
-		ypos = canvas.height/8 + length*Math.cos(angle);
+		xpos = canvas.width/2 + 1.5*length*Math.sin(angle);
+		ypos = canvas.height/8 + 1.5*length*Math.cos(angle);
 
 		// draw sliders
 		length = lengthSlider.value;
@@ -100,8 +103,8 @@ function pendulum() {
 
 		// draw string
 		ctx.shadowBlur = 0;
-		ctx.fillStyle = "yellow";
-		ctx.strokeStyle = "red";
+		ctx.fillStyle = "white";
+		ctx.strokeStyle = "white";
 		ctx.lineWidth = 1;
 		ctx.beginPath();
 		ctx.moveTo(xpos, ypos);
@@ -122,11 +125,11 @@ function pendulum() {
 		ctx.strokeStyle = "#00FF00";
 		ctx.fillStyle = "black";
 		ctx.beginPath();
-		ctx.arc(xpos, ypos, mass, 0, 2*Math.PI);
+		ctx.arc(xpos, ypos, mass*1.5, 0, 2*Math.PI);
 		ctx.fill();
 		ctx.stroke();
 		ctx.shadowBlur = 0;
-		
+
 		let trans = mass/2, scale = 500;
 		let mg = scale*mass*g/10+trans;
 		let theta = 3*Math.PI/2+Math.atan2(xpos-canvas.width/2, ypos-canvas.height/8);
@@ -149,18 +152,33 @@ function pendulum() {
 		if (showNetForce) {
 			netVector.drawVector(xpos, ypos, newmag, netangle);
 		}
-		let dir = Math.PI-angle;
-		if (angle < 0)
-			dir = Math.PI+angle;
+		// let dir = Math.PI-angle;
+		// if (angle < 0)
+		// 	dir = Math.PI/2+angle;
 		// draw velocity vector
+		vmax = Math.sqrt(2*g*length*(1-Math.cos(Math.PI/2)));
+		velocity = Math.sqrt(2*g*length*(Math.cos(angle)-Math.cos(thetamax)));
+		if (omega > 0)
+			velocity *= -1;
 		if (showVelocity && !ballClicked) {
-			let speed = Math.sqrt(2*g*length*(1-Math.cos(Math.PI-angle)));
-			velocityVector.drawVector(xpos, ypos, speed/10, dir);
+			velocityVector.drawVector(xpos, ypos, velocity/vmax*80, Math.PI-angle);
 		}
 		// draw acceleration vector
+		acceleration = g*Math.sin(angle);
 		if (showAcceleration) {
-			let acc = 100*g*Math.sin(angle);
-			accelerationVector.drawVector(xpos, ypos, acc, angle);
+			let acc = (scale*g+trans)*Math.sin(angle);
+			if (ballClicked) {
+				if (omega < 0)
+					acceleration *= -1;
+				accelerationVector.drawVector(xpos, ypos, 2*scale*acceleration, Math.PI-angle);
+			}
+			else {
+				let dir = Math.PI/2-Math.atan(g*Math.cos(angle)/acceleration);
+				if (angle > 0)
+					dir = Math.atan(g*Math.cos(angle)/acceleration)-Math.PI/2;
+				accelerationVector.drawVector(xpos, ypos, 2*scale*acceleration, dir);
+			}
+			//accelerationVector.drawVector(xpos, ypos, acc, angle);
 		}
 
 		// write labels
