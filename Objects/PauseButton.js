@@ -7,7 +7,7 @@ class PauseButton {
 		this.y = y;
 		this.width = width || 32;
 		this.selected = selected || false;
-		this.color = color || "magenta";
+		this.color = color || "#00FFFF";
 		this.hover = false;
 	}
 
