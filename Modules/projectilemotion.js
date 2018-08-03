@@ -1,5 +1,3 @@
-window.onload = function() { projectile(); }
-
 function projectile() {
 
 	// positioning variables
