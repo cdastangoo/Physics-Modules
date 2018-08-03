@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="style.css">
 	<script type='text/javascript' src="Slider.js"></script>
 	<script type='text/javascript' src="Checkbox.js"></script>
+    <script type='text/ecmascript' src="Vector.js"></script>
 	<script type='text/javascript' src="PauseButton.js"></script>
     <script type='text/javascript' src="ResetButton.js"></script>
     <script type='text/javascript' src="projectilemotion.js"></script>
@@ -12,24 +13,30 @@
 <body>
 	<h1>Physics</h1>
 	<div class="tab">
-		<button class="tablinks" onclick="openTab(event, 'default')" id="defaultTab">Default</button>
-		<button class="tablinks" onclick="openTab(event, 'motion')">Motion</button>
-		<button class="tablinks" onclick="openTab(event, 'friction')">Friction</button>
+		<button class="tablinks" onclick="openTab(event, 'motion')" id="defaultTab">Motion</button>
+        <button class="tablinks" onclick="openTab(event, 'force')">Force and Friction</button>
+		<button class="tablinks" onclick="openTab(event, 'circular')">Circular Motion</button>
+        <button class="tablinks" onclick="openTab(event, 'energy')">Work and Energy</button>
+        <button class="tablinks" onclick="openTab(event, 'momentum')">Momentum and Collisions</button>
+        <button class="tablinks" onclick="openTab(event, 'oscillations')">Oscillations</button>
+        <button class="tablinks" onclick="openTab(event, 'e&m')">Electricity & Magnetism</button>
 	</div>
-	<div id="default" class="tabcontent">
+	<div id="motion" class="tabcontent">
         <div>
             <p>Projectile Motion</p>
     		<canvas id="projectilemotion" width="480" height="480"></canvas>
         </div>
-        <div>
-            <p>Simple Pendulum</p>
-            <canvas id="pendulum" width="480" height="480"></canvas>
-        </div>
 	</div>
-	<div id="motion" class="tabcontent">
+	<div id="force" class="tabcontent">
         <!-- <p>Simple Pendulum</p>
         <canvas id="pendulum" width="480" height="480"></canvas> -->
 	</div>
+    <div id="oscillations" class="tabcontent">
+        <div>
+            <p>Simple Pendulum</p>
+            <canvas id="pendulum" width="600" height="600"></canvas>
+        </div>
+    </div>
     <script>
         window.onload = function() {
             projectile();
