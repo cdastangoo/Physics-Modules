@@ -6,7 +6,7 @@ class Checkbox {
         this.label = label;
         this.x = x;
         this.y = y;
-        this.color = color || "yellow";
+        this.color = color || "#FFFF00";
         this.selected = selected || false;
         this.width = width || 8;
         this.hover = false;
