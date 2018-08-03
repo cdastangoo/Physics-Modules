@@ -18,7 +18,7 @@ class ResetButton {
 		ctx.lineWidth = 2;
 
 		// handle shadow
-		ctx.shadowColor = "#FF66FF";
+		ctx.shadowColor = this.color.replace("00", "66");
 		if (this.hover)
 			ctx.shadowBlur = 12;
 		else
@@ -43,7 +43,7 @@ class ResetButton {
 		ctx.stroke();
 
 		// draw corners
-		ctx.beginPath();
+        ctx.beginPath();
 		ctx.arc(this.x, this.y, 3, Math.PI, 3*Math.PI/2);
 		ctx.stroke();
 		ctx.beginPath();
@@ -57,19 +57,17 @@ class ResetButton {
 		ctx.stroke();
 
         // draw reset symbol
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.arc(this.x+this.width/2, this.y+this.width/2, this.width/3, Math.PI/6, 11*Math.PI/6);
         ctx.stroke();
         let tox = this.x+this.width/2+this.width/3*Math.cos(Math.PI/6);
         let toy = this.y+this.width/2-this.width/3*Math.sin(Math.PI/6);
+        ctx.lineJoin = "round";
         ctx.beginPath();
-        ctx.moveTo(tox, toy);
-        ctx.lineTo(tox+5*Math.cos(Math.PI/3+Math.PI/9), toy-5*Math.sin(Math.PI/3+Math.PI/9));
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(tox, toy);
-        ctx.lineTo(tox-5*Math.cos(Math.PI/3-Math.PI/9), toy+5*Math.sin(Math.PI/3-Math.PI/9));
+        ctx.moveTo(tox+6*Math.cos(5*Math.PI/4-Math.PI/4), toy+6*Math.sin(5*Math.PI/4-Math.PI/4));
+        ctx.lineTo(tox, toy);
+        ctx.lineTo(tox+6*Math.cos(5*Math.PI/4+Math.PI/4), toy+6*Math.sin(5*Math.PI/4+Math.PI/4));
         ctx.stroke();
 	}
 }
