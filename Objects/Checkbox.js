@@ -1,14 +1,14 @@
 class Checkbox {
 
-    constructor(canvas, label, x, y, width, selected, color) {
+    constructor(canvas, label, x, y, color, selected, width) {
         // checkbox variables
         this.canvas = canvas;
         this.label = label;
         this.x = x;
         this.y = y;
-        this.width = width || 8;
-        this.selected = selected || true;
         this.color = color || "yellow";
+        this.selected = selected || false;
+        this.width = width || 8;
         this.hover = false;
     }
 
@@ -21,7 +21,7 @@ class Checkbox {
         ctx.lineWidth = 2;
 
         //handle shadow
-        ctx.shadowColor = "#FFFF66";
+        ctx.shadowColor = this.color.replace("00", "66");
         if (this.hover)
             ctx.shadowBlur = 12;
         else
@@ -32,7 +32,6 @@ class Checkbox {
         ctx.stroke();
 
         // draw select indicator
-        ctx.shadowBlur = 0;
         if (this.selected) {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.width-5, 0, 2*Math.PI);
