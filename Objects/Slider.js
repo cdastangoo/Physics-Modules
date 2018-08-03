@@ -11,7 +11,7 @@ class Slider {
         this.value = value;
         this.step = step || 1;
         this.unit = unit || "";
-        this.color = color || "cyan";
+        this.color = color || "#00FFFF";
         this.valuex = x + value/max*(canvas.width/2);
         this.valuey = y;
         this.hover = false;
@@ -40,7 +40,7 @@ class Slider {
         ctx.stroke();
 
         // handle shadow
-        ctx.shadowColor = "#66FFFF";
+        ctx.shadowColor = this.color.replace("00", "66");
         if (this.hover)
             ctx.shadowBlur = 12;
         else
