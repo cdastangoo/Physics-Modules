@@ -6,7 +6,7 @@ class ResetButton {
 		this.x = x;
 		this.y = y;
 		this.width = width || 32;
-		this.color = color || "magenta";
+		this.color = color || "#00FFFF";
 		this.hover = false;
 	}
 
