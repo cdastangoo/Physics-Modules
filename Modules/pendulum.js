@@ -3,7 +3,7 @@ function pendulum() {
 	// positioning variables
 	var xpos, ypos, mousex, mousey;
 	var ballClicked = false, paused = false;
-	var showForces = true, showVelocity = true, showAcceleration = true;
+	var showForces = false, showVelocity = false, showAcceleration = false;
 
 	// physics variables
 	var length, mass, damping;   // user defined parameters
@@ -14,7 +14,7 @@ function pendulum() {
 	// canvas
 	var canvas = document.getElementById("pendulum");
 	var ctx = canvas.getContext("2d");
-	var pauseButton = new PauseButton(canvas, 540, 480, 32, true, "cyan");
+	var pauseButton = new PauseButton(canvas, 540, 480, 32, false, "cyan");
 	var resetButton = new ResetButton(canvas, 540, 540, 32, "cyan");
 
 	// slider objects
@@ -24,9 +24,9 @@ function pendulum() {
 	var sliders = [lengthSlider, massSlider, dampingSlider];
 
 	// checkbox objects
-	var forceCheckbox = new Checkbox(canvas, "Forces", 380, 500, true, "yellow");
-	var velocityCheckbox = new Checkbox(canvas, "Velocity", 380, 530, true, "red");
-	var accelerationCheckbox = new Checkbox(canvas, "Acceleration", 380, 560, true, "magenta");
+	var forceCheckbox = new Checkbox(canvas, "Forces", 380, 500, "yellow");
+	var velocityCheckbox = new Checkbox(canvas, "Velocity", 380, 530, "red");
+	var accelerationCheckbox = new Checkbox(canvas, "Acceleration", 380, 560, "magenta");
 	var checkboxes = [forceCheckbox, velocityCheckbox, accelerationCheckbox];
 
 	// vector objects
@@ -41,6 +41,7 @@ function pendulum() {
 		alpha = 0.0;
 		angle = Math.PI/3;
 		thetamax = angle;
+		velocity = 0.0;
 		length = lengthSlider.value;
 		mass = massSlider.value;
 		damping = dampingSlider.value;
@@ -62,20 +63,21 @@ function pendulum() {
 		// draw canvas
 		ctx.strokeStyle = "cyan";
 		ctx.fillStyle = "black";
+		ctx.beginPath();
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		ctx.beginPath();
 		ctx.rect(0, 0, canvas.width, canvas.height);
 		ctx.stroke();
 
 		// handle physics
-		if (!ballClicked) {
+		if (!ballClicked && !paused) {
 			alpha = -0.2*g/length * Math.sin(angle);
 			omega += alpha;
 			omega *= (1 - damping*0.01);
 			angle += omega;
 		}
 		// handle mouse drag
-		else if (!paused) {
+		else if (ballClicked) {
 			dx = mousex - canvas.width/2;
 			dy = mousey - canvas.height/8;
 			angle = Math.atan2(-1*dy, dx) + Math.PI/2;
@@ -156,9 +158,15 @@ function pendulum() {
 		// draw UI border
 		ctx.shadowBlur = 0;
 		ctx.fillStyle = "black";
-		ctx.rect(1, 0.75*canvas.height, canvas.width-2, 0.25*canvas.height-1);
+		ctx.beginPath();
+		ctx.rect(1, 0.75*canvas.height-5, canvas.width-2, 0.25*canvas.height-6);
 		ctx.fill();
+		ctx.beginPath();
 		ctx.strokeStyle = "cyan";
+		ctx.lineWidth = 1;
+		ctx.moveTo(0, 0.75*canvas.height-5);
+		ctx.lineTo(canvas.width, 0.75*canvas.height-5);
+		ctx.stroke();
 		ctx.stroke();
 		//ctx.strokeStyle="black";
 
@@ -201,22 +209,44 @@ function pendulum() {
 	canvas.onmousedown = function(e) {
 		var x = e.clientX - canvas.offsetLeft;
 		var y = e.clientY - canvas.offsetTop;
-		// if ball is ballClicked
+		// ball is clicked
 		if (Math.sqrt(Math.pow(xpos-x, 2) + Math.pow(ypos-y, 2)) < 1.5*mass) {
 			ballClicked = true;
 			mousex = x;
 			mousey = y;
 		}
-		// if slider is ballClicked
-		else {
-			for (let i = 0; i < sliders.length; i++) {
-				if (Math.sqrt(Math.pow(sliders[i].valuex-x, 2) + Math.pow(sliders[i].valuey-y, 2)) < 7) {
-					sliders[i].dragged = true;
-					mousex = x;
-					mousey = y;
-					break;
-				}
+		// slider is clicked
+		for (let i = 0; i < sliders.length; i++) {
+			if (Math.sqrt(Math.pow(sliders[i].valuex-x, 2) + Math.pow(sliders[i].valuey-y, 2)) < 7) {
+				sliders[i].dragged = true;
+				mousex = x;
+				mousey = y;
+				break;
 			}
+		}
+		// show force vectors clicked
+		if (Math.sqrt(Math.pow(forceCheckbox.x-x, 2) + Math.pow(forceCheckbox.y-y, 2)) < forceCheckbox.width+2) {
+			showForces = !showForces;
+			forceCheckbox.selected = !forceCheckbox.selected;
+		}
+		// show velocity vectors clicked
+		if (Math.sqrt(Math.pow(velocityCheckbox.x-x, 2) + Math.pow(velocityCheckbox.y-y, 2)) < velocityCheckbox.width+2) {
+			showVelocity = !showVelocity;
+			velocityCheckbox.selected = !velocityCheckbox.selected;
+		}
+		// show acceleration vectors clicked
+		if (Math.sqrt(Math.pow(accelerationCheckbox.x-x, 2) + Math.pow(accelerationCheckbox.y-y, 2)) < accelerationCheckbox.width+2) {
+			showAcceleration = !showAcceleration;
+			accelerationCheckbox.selected = !accelerationCheckbox.selected;
+		}
+		// pause button clicked
+		if (Math.sqrt(Math.pow(pauseButton.x+pauseButton.width/2-x, 2) + Math.pow(pauseButton.y+pauseButton.width/2-y, 2)) < 3*pauseButton.width/4) {
+			paused = !paused;
+			pauseButton.selected = !pauseButton.selected;
+		}
+		// reset button clicked
+		if (Math.sqrt(Math.pow(resetButton.x+resetButton.width/2-x, 2) + Math.pow(resetButton.y+resetButton.width/2-y, 2)) < 3*resetButton.width/4) {
+			reset();
 		}
 	}
 	// mouse motion listener
@@ -262,20 +292,6 @@ function pendulum() {
 		for (let i = 0; i < sliders.length; i++) {
 			if (sliders[i].dragged) {
 				sliders[i].dragged = false;
-			}
-		}
-	}
-	//key listeners
-	window.onkeydown = function(e) {
-		var key = e.keyCode;
-		if (!paused) {
-			// space: reset
-			if (key == 32) {
-				reset();
-			}
-			// p or esc: pause
-			if (key == 27 || key == 80) {
-				paused = !paused;
 			}
 		}
 	}
