@@ -16,10 +16,11 @@ class PauseButton {
 		let canvas = this.canvas;
 		let ctx = canvas.getContext("2d");
 		ctx.strokeStyle = this.color;
+        ctx.fillStyle = this.color;
 		ctx.lineWidth = 2;
 
 		// handle shadow
-		ctx.shadowColor = "#FF66FF";
+		ctx.shadowColor = this.color.replace("00", "66");
 		if (this.hover)
 			ctx.shadowBlur = 12;
 		else
@@ -57,10 +58,10 @@ class PauseButton {
 		ctx.arc(this.x+this.width, this.y+this.width, 3, 0, Math.PI/2);
 		ctx.stroke();
 
-		// draw pause indicator
+        // draw pause indicator
 		if (this.selected) {
 			// play symbol edges
-			ctx.lineWidth = 2;
+			ctx.lineWidth = 3;
 			ctx.beginPath();
 			ctx.moveTo(this.x+this.width/4 + 3*Math.cos(Math.PI/3), this.y+this.width/4 - 3*Math.sin(Math.PI/3));
 			ctx.lineTo(this.x+Math.sqrt(3)/2*this.width-3 + 3*Math.cos(Math.PI/3), this.y+this.width/2 - 3*Math.sin(Math.PI/3));
@@ -86,6 +87,27 @@ class PauseButton {
 		}
 		else {
 			// TODO: draw pause symbol
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(this.x+this.width/3, this.y+this.width/4);
+            ctx.lineTo(this.x+this.width/3, this.y+3*this.width/4);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(this.x+2*this.width/3, this.y+this.width/4);
+            ctx.lineTo(this.x+2*this.width/3, this.y+3*this.width/4);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(this.x+this.width/3, this.y+this.width/4, 2.5, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(this.x+this.width/3, this.y+3*this.width/4, 2.5, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(this.x+2*this.width/3, this.y+this.width/4, 2.5, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(this.x+2*this.width/3, this.y+3*this.width/4, 2.5, 0, 2*Math.PI);
+            ctx.fill();
 		}
 	}
 }
