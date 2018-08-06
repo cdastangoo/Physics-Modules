@@ -86,15 +86,15 @@ function projectile() {
 		// 	angle = theta*Math.PI/180;
 		// }
 		// handle mouse drag
-		else if (ballClicked && launched) {
-			if (mousex < 15)
-				xpos = 15;
-			else if (mousex > range+15)
-				xpos = range+15;
+		else if (ballClicked && (!launched || paused)) {
+            if (mousex < 40)
+				xpos = 40;
+			else if (mousex > 5*range+40)
+				xpos = 5*range+40;
 			else
 				xpos = mousex;
-			t = (xpos-15)/(velocity*Math.cos(theta));
-			ypos = height + velocity*Math.sin(theta)*t - 0.5*g*Math.pow(t, 2);
+			t = (xpos-40)/(5*velocity*Math.cos(angle*Math.PI/180));
+			ypos = canvas.height-ground - (height + velocity*5*Math.sin(angle*Math.PI/180)*t - 0.5*g*Math.pow(t, 2));
 		}
 		if (launched || ballClicked) {
 			xpos = velocity*5*Math.cos(angle*Math.PI/180)*t + 40;
@@ -281,7 +281,7 @@ function projectile() {
 	canvas.onmouseup = function(e) {
 		if (ballClicked) {
 			velocity = 0.0;
-			clicked = false;
+			ballClicked = false;
 		}
 		for (let i = 0; i < sliders.length; i++) {
 			if (sliders[i].dragged) {
